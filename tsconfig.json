@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "target": "esnext",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "strict": true,
+      "skipLibCheck": true,
+      "declaration": true,
+      "pretty": true,
+      "newLine": "lf",
+      "outDir": "dist"
+    }
+  }
