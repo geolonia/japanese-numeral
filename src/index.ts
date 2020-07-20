@@ -20,8 +20,6 @@ const japaneseNumeral = {
         japanese = japanese.replace(reg, japaneseNumerics[key].toString())
       }
 
-      console.log(japanese)
-
       number = Number(japanese)
     } else {
       const numbers = japaneseNumeral.splitLargeNumber(japanese)
