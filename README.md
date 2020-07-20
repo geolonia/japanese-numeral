@@ -24,9 +24,6 @@ console.log(kanji2number('千百十一兆千百十一億千百十一万千百十
 
 // 漢数字のゼロ `〇` を使用することも可能。
 console.log(kanji2number('二〇二〇')) // 2020
-
-// 判別できないときは `NaN` を返す。
-console.log(kanji2number('あ')) // NaN
 ```
 
 ### number2kanji
