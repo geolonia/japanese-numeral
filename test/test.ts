@@ -20,6 +20,7 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual(number2kanji(1000000000000000), '千兆')
     assert.deepEqual(number2kanji(1200000), '百二十万')
     assert.deepEqual(number2kanji(18), '十八')
+    assert.deepEqual(number2kanji(100100000), '一億十万')
   });
 
   it('Japanese string should not be parsed as numbers.', () => {
