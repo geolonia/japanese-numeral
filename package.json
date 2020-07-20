@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && mocha -r ts-node/register test/*.ts",
+    "test": "mocha -r ts-node/register test/*.ts",
     "test:watch": "npm test -- --watch --watch-files src/**/*.ts --watch-files test/**/*.ts"
   },
   "author": "",
