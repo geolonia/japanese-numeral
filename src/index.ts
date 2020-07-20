@@ -10,19 +10,33 @@ const smallNumbers: NumHash = { '千': 1000, '百': 100, '十': 10 }
 
 const japaneseNumeral = {
   toNumber: (japanese: string) => {
-    const numbers = japaneseNumeral.splitLargeNumber(japaneseNumeral.normalize(japanese))
+    japanese = japaneseNumeral.normalize(japanese)
     let number = 0
 
-    // 万以上の数字を数値に変換
-    for (const key in largeNumbers) {
-      if (numbers[key]) {
-        const n = largeNumbers[key] * numbers[key]
-        number = number + n
+    if (japanese.match('〇')) {
+      let _num = ''
+      for (const key in japaneseNumerics) {
+        const reg = new RegExp(key, 'g')
+        japanese = japanese.replace(reg, japaneseNumerics[key].toString())
       }
-    }
 
-    // 千以下の数字を足す
-    number = number + numbers['千']
+      console.log(japanese)
+
+      number = Number(japanese)
+    } else {
+      const numbers = japaneseNumeral.splitLargeNumber(japanese)
+
+      // 万以上の数字を数値に変換
+      for (const key in largeNumbers) {
+        if (numbers[key]) {
+          const n = largeNumbers[key] * numbers[key]
+          number = number + n
+        }
+      }
+
+      // 千以下の数字を足す
+      number = number + numbers['千']
+    }
 
     return number
   },

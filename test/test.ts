@@ -32,5 +32,11 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual(japaneseNumeral.toNumber('一千百十一兆一千百十一億一千百十一'), 1111111100001111)
     assert.deepEqual(japaneseNumeral.toNumber('百十一'), 111)
     assert.deepEqual(japaneseNumeral.toNumber('三億八'), 300000008)
+    assert.deepEqual(japaneseNumeral.toNumber('三百八'), 308)
+    assert.deepEqual(japaneseNumeral.toNumber('三〇八'), 308)
+  });
+
+  it('Japanese string should not be parsed as numbers.', () => {
+    assert.deepEqual(japaneseNumeral.toNumber('三あ八'), NaN)
   });
 });
