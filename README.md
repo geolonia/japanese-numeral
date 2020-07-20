@@ -12,7 +12,7 @@ $ npm install @geolonia/japanese-numeral --save
 
 ### kanji2number()
 
-Converts Japanese Kanji numeric to number.
+Converts Japanese Kanji numeral to number.
 
 ```javascript
 import { kanji2number, number2kanji } from '@geolonia/japanese-numeral'
@@ -31,7 +31,7 @@ console.log(kanji2number('あ')) // NaN
 
 ### number2kanji
 
-Converts number to Japanese Kanji numeric.
+Converts number to Japanese Kanji numeral.
 
 ```javascript
 import { kanji2number, number2kanji } from '@geolonia/japanese-numeral'
