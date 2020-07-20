@@ -1,105 +1,54 @@
-import oldJapaneseNumerics from './oldJapaneseNumerics'
+import { normalize, splitLargeNumber, largeNumbers, n2kan } from './utils'
 import japaneseNumerics from './japaneseNumerics'
 
-type NumHash = {
-  [key: string]: number;
-}
+export function kanji2number(japanese: string) {
+  japanese = normalize(japanese)
+  let number = 0
 
-const largeNumbers: NumHash = { '兆': 1000000000000, '億': 100000000, '万': 10000 }
-const smallNumbers: NumHash = { '千': 1000, '百': 100, '十': 10 }
-
-const japaneseNumeral = {
-  toNumber: (japanese: string) => {
-    japanese = japaneseNumeral.normalize(japanese)
-    let number = 0
-
-    if (japanese.match('〇')) {
-      let _num = ''
-      for (const key in japaneseNumerics) {
-        const reg = new RegExp(key, 'g')
-        japanese = japanese.replace(reg, japaneseNumerics[key].toString())
-      }
-
-      number = Number(japanese)
-    } else {
-      const numbers = japaneseNumeral.splitLargeNumber(japanese)
-
-      // 万以上の数字を数値に変換
-      for (const key in largeNumbers) {
-        if (numbers[key]) {
-          const n = largeNumbers[key] * numbers[key]
-          number = number + n
-        }
-      }
-
-      // 千以下の数字を足す
-      number = number + numbers['千']
-    }
-
-    return number
-  },
-
-  normalize: (japanese: string) => {
-    for (const key in oldJapaneseNumerics) {
+  if (japanese.match('〇')) {
+    let _num = ''
+    for (const key in japaneseNumerics) {
       const reg = new RegExp(key, 'g')
-      japanese = japanese.replace(reg, oldJapaneseNumerics[key])
+      japanese = japanese.replace(reg, japaneseNumerics[key].toString())
     }
-    return japanese
-  },
 
-  /**
-   * 漢数字を兆、億、万単位に分割する
-   */
-  splitLargeNumber: (japanese: string) => {
-    let kanji = japanese
-    const numbers:NumHash = {}
+    number = Number(japanese)
+  } else {
+    const numbers = splitLargeNumber(japanese)
+
+    // 万以上の数字を数値に変換
     for (const key in largeNumbers) {
-      const reg = new RegExp(`(.+)${key}`)
-      const match = kanji.match(reg)
-      if (match) {
-        numbers[key] = japaneseNumeral.kan2n(match[1])
-        kanji = kanji.replace(match[0], '')
-      } else {
-        numbers[key] = 0
+      if (numbers[key]) {
+        const n = largeNumbers[key] * numbers[key]
+        number = number + n
       }
     }
 
-    if (kanji) {
-      numbers['千'] = japaneseNumeral.kan2n(kanji)
-    } else {
-      numbers['千'] = 0
-    }
-
-    return numbers
-  },
-
-  /**
-   * 千単位以下の漢数字を数字に変換する（例: 三千 => 3000）
-   */
-  kan2n: (japanese: string) => {
-    let kanji = japanese
-    let number = 0
-    for (const key in smallNumbers) {
-      const reg = new RegExp(`(.*)${key}`)
-      const match = kanji.match(reg)
-      if (match) {
-        let n = 1
-        if (match[1]) {
-          n = japaneseNumerics[match[1]]
-        }
-
-        number = number + (n * smallNumbers[key])
-
-        kanji = kanji.replace(match[0], '')
-      }
-    }
-
-    if (kanji) {
-      number = number + japaneseNumerics[kanji]
-    }
-
-    return number
+    // 千以下の数字を足す
+    number = number + numbers['千']
   }
+
+  return number
 }
 
-export default japaneseNumeral
+
+export function number2kanji(num: number) {
+  const kanjiNumbers = Object.keys(japaneseNumerics)
+  let number = num
+  let kanji = ''
+
+  // 万以上の数字を漢字に変換
+  for (const key in largeNumbers) {
+    const n = Math.floor(number / largeNumbers[key])
+    if (n) {
+      number = number - (n * largeNumbers[key])
+      kanji = `${kanji}${n2kan(n)}${key}`
+    }
+  }
+
+  if (number) {
+    kanji = `${kanji}${n2kan(number)}`
+  }
+
+  return kanji
+}

@@ -1,6 +1,6 @@
 # @geolonia/japanese-numeral
 
-Converts Japanese Kanji numeral to number.
+Converts Japanese Kanji numeral <=> number.
 
 ## Installation
 
@@ -10,17 +10,31 @@ $ npm install @geolonia/japanese-numeral --save
 
 ## Usage
 
-```javascript
-import japaneseNumeral from '@geolonia/japanese-numeral'
+### kanji2number()
 
-console.log(japaneseNumeral.toNumber('一千百十一兆一千百十一億一千百十一万一千百十一')) // 1111111111111111
+Converts Japanese Kanji numeric to number.
+
+```javascript
+import { kanji2number, number2kanji } from '@geolonia/japanese-numeral'
+
+console.log(kanji2number('一千百十一兆一千百十一億一千百十一万一千百十一')) // 1111111111111111
 
 // `一千` を `千` と記述しても同じ結果になる。
-console.log(japaneseNumeral.toNumber('千百十一兆千百十一億千百十一万千百十一')) // 1111111111111111
+console.log(kanji2number('千百十一兆千百十一億千百十一万千百十一')) // 1111111111111111
 
 // 漢数字のゼロ `〇` を使用することも可能。
-console.log(japaneseNumeral.toNumber('二〇二〇')) // 2020
+console.log(kanji2number('二〇二〇')) // 2020
 
 // 判別できないときは `NaN` を返す。
-console.log(japaneseNumeral.toNumber('あ')) // NaN
+console.log(kanji2number('あ')) // NaN
+```
+
+### number2kanji
+
+Converts number to Japanese Kanji numeric.
+
+```javascript
+import { kanji2number, number2kanji } from '@geolonia/japanese-numeral'
+
+console.log(number2kanji(1111111111111111)) // 千百十一兆千百十一億千百十一万千百十一
 ```
