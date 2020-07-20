@@ -1,4 +1,4 @@
-import japaneseNumeral from '../src/index'
+import japaneseNumeral from '..'
 import { assert } from 'chai'
 
 describe('Tests for japaneseNumeral.', () => {

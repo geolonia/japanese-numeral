@@ -11,7 +11,7 @@ $ npm install @geolonia/japanese-numeral --save
 ## Usage
 
 ```javascript
-const japaneseNumeral = require('@geolonia/japanese-numeral')
+import japaneseNumeral from '@geolonia/japanese-numeral'
 
 console.log(japaneseNumeral.toNumber('一千百十一兆一千百十一億一千百十一万一千百十一')) // 1111111111111111
 

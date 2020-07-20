@@ -9,5 +9,8 @@
       "pretty": true,
       "newLine": "lf",
       "outDir": "dist"
-    }
+    },
+    "files": [
+      "./src/index.ts"
+    ]
   }
