@@ -3,17 +3,16 @@ import japaneseNumerics from './japaneseNumerics'
 
 export function kanji2number(japanese: string) {
   japanese = normalize(japanese)
-  let number = 0
 
   if (japanese.match('〇')) {
-    let _num = ''
     for (const key in japaneseNumerics) {
       const reg = new RegExp(key, 'g')
       japanese = japanese.replace(reg, japaneseNumerics[key].toString())
     }
 
-    number = Number(japanese)
+    return Number(japanese)
   } else {
+    let number = 0
     const numbers = splitLargeNumber(japanese)
 
     // 万以上の数字を数値に変換
@@ -25,10 +24,8 @@ export function kanji2number(japanese: string) {
     }
 
     // 千以下の数字を足す
-    number = number + numbers['千']
+    return number + numbers['千']
   }
-
-  return number
 }
 
 
