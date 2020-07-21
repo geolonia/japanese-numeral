@@ -44,6 +44,8 @@ export function splitLargeNumber(japanese: string) {
 
 /**
  * 千単位以下の漢数字を数字に変換する（例: 三千 => 3000）
+ *
+ * @param japanese
  */
 export function kan2n(japanese: string) {
   let kanji = japanese
@@ -70,6 +72,11 @@ export function kan2n(japanese: string) {
   return number
 }
 
+/**
+ * Converts number less than 10000 to kanji.
+ *
+ * @param num
+ */
 export function n2kan(num: number) {
   const kanjiNumbers = Object.keys(japaneseNumerics)
   let number = num

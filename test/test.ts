@@ -1,4 +1,4 @@
-import { kanji2number, number2kanji } from '../src'
+import { kanji2number, number2kanji, findKanjiNumbers } from '../src'
 import { assert } from 'chai'
 
 describe('Tests for japaneseNumeral.', () => {
@@ -12,6 +12,7 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual(kanji2number('三〇八'), 308)
     assert.deepEqual(kanji2number('二〇二〇'), 2020)
     assert.deepEqual(kanji2number('二千'), 2000)
+    assert.deepEqual(kanji2number('壱万'), 10000)
   });
 
   it('Number should be converted to Japanese kanji', () => {
@@ -27,4 +28,14 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual(kanji2number('三あ八'), NaN)
     assert.deepEqual(kanji2number('あ'), NaN)
   });
+
+  it('should find Japanese Kanji numbers.', () => {
+    assert.deepEqual([ '二千二十', '十一', '二十' ], findKanjiNumbers('今日は二千二十年十一月二十日です。'))
+    assert.deepEqual([ '二〇二〇', '十一', '二十' ], findKanjiNumbers('今日は二〇二〇年十一月二十日です。'))
+    assert.deepEqual([ '二千二十億' ], findKanjiNumbers('わたしは二千二十億円もっています。'))
+    assert.deepEqual([ '二〇二〇億' ], findKanjiNumbers('わたしは二〇二〇億円もっています。'))
+    assert.deepEqual([ '八百六十三' ], findKanjiNumbers('今日のランチは八百六十三円でした。'))
+    assert.deepEqual([ '八六三' ], findKanjiNumbers('今日のランチは八六三円でした。'))
+    assert.deepEqual([ '三千' ], findKanjiNumbers('今月のお小遣いは三千円です。'))
+  })
 });

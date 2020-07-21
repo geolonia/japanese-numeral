@@ -49,3 +49,21 @@ export function number2kanji(num: number) {
 
   return kanji
 }
+
+export function findKanjiNumbers(text: string) {
+  const basePattern = '([一二三四五六七八九]+千)?([一二三四五六七八九]*百)?([一二三四五六七八九]*十)?([〇一二三四五六七八九]+)?'
+  const pattern = `(${basePattern}兆)?(${basePattern}億)?(${basePattern}万)?${basePattern}`
+  const regex = new RegExp(pattern, 'g')
+  const match = text.match(regex)
+  if (match) {
+    return match.filter((item) => {
+      if (item.length) {
+        return true
+      } else {
+        return false
+      }
+    })
+  } else {
+    return []
+  }
+}
