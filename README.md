@@ -1,5 +1,7 @@
 # @geolonia/japanese-numeral
 
+![https://github.com/geolonia/wwwdiff/japanese-numeral](https://github.com/geolonia/japanese-numeral/workflows/test/badge.svg)
+
 Converts Japanese Kanji numeral <=> number.
 
 ## Installation
