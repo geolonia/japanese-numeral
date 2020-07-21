@@ -76,3 +76,6 @@ typings/
 .serverless
 
 dist
+
+# Use npm
+yarn.lock
