@@ -26,7 +26,7 @@ console.log(kanji2number('千百十一兆千百十一億千百十一万千百十
 console.log(kanji2number('二〇二〇')) // 2020
 ```
 
-### number2kanji
+### number2kanji()
 
 Converts number to Japanese Kanji numeral.
 
