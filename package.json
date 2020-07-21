@@ -8,6 +8,10 @@
     "test": "mocha -r ts-node/register test/*.ts",
     "test:watch": "npm test -- --watch --watch-files src/**/*.ts --watch-files test/**/*.ts"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geolonia/japanese-numeral.git"
+  },
   "author": "Geolonia Inc.",
   "license": "MIT",
   "devDependencies": {

@@ -38,7 +38,7 @@ import { number2kanji } from '@geolonia/japanese-numeral'
 console.log(number2kanji(1111111111111111)) // 千百十一兆千百十一億千百十一万千百十一
 ```
 
-## findKanjiNumbers()
+### findKanjiNumbers()
 
 Finds the Japanese numeral numbers as an array.
 
