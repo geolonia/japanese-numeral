@@ -24,9 +24,15 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual(number2kanji(100100000), '一億十万')
   });
 
-  it('Japanese string should not be parsed as numbers.', () => {
-    assert.deepEqual(kanji2number('三あ八'), NaN)
-    assert.deepEqual(kanji2number('あ'), NaN)
+  it('should returns the instance of TypeError', () => {
+    // @ts-ignore
+    assert.throws(() => number2kanji('hello'), TypeError)
+
+    // @ts-ignore
+    assert.throws(() => kanji2number('三あ八'), TypeError)
+
+    // @ts-ignore
+    assert.throws(() => kanji2number('あ'), TypeError)
   });
 
   it('should find Japanese Kanji numbers.', () => {

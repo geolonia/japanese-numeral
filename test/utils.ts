@@ -1,4 +1,4 @@
-import { n2kan } from '../src/utils'
+import { n2kan, kan2n } from '../src/utils'
 import { assert } from 'chai'
 
 describe('Tests for utils.', () => {
@@ -8,4 +8,8 @@ describe('Tests for utils.', () => {
     assert.deepEqual(n2kan(1000), '千')
     assert.deepEqual(n2kan(5), '五')
   });
+
+  it('`kan2n()` should returns value as expected.', () => {
+    assert.deepEqual(kan2n('三千'), 3000)
+  })
 });

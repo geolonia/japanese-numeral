@@ -23,6 +23,10 @@ export function kanji2number(japanese: string) {
       }
     }
 
+    if (!Number.isInteger(number) || !Number.isInteger(numbers['千'])) {
+      throw new TypeError('The attribute of kanji2number() must be a Japanese numeral as integer.')
+    }
+
     // 千以下の数字を足す
     return number + numbers['千']
   }
@@ -30,6 +34,10 @@ export function kanji2number(japanese: string) {
 
 
 export function number2kanji(num: number) {
+  if (!num.toString().match(/^[0-9]+$/)) {
+    throw new TypeError('The attribute of number2kanji() must be integer.')
+  }
+
   const kanjiNumbers = Object.keys(japaneseNumerics)
   let number = num
   let kanji = ''
