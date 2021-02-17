@@ -13,6 +13,7 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual(kanji2number('二〇二〇'), 2020)
     assert.deepEqual(kanji2number('二千'), 2000)
     assert.deepEqual(kanji2number('壱万'), 10000)
+    assert.deepEqual(kanji2number('一二三四'), 1234)
   });
 
   it('Number should be converted to Japanese kanji', () => {

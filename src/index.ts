@@ -4,7 +4,7 @@ import japaneseNumerics from './japaneseNumerics'
 export function kanji2number(japanese: string) {
   japanese = normalize(japanese)
 
-  if (japanese.match('〇')) {
+  if (japanese.match('〇') || japanese.match(/^[〇一二三四五六七八九]+$/)) {
     for (const key in japaneseNumerics) {
       const reg = new RegExp(key, 'g')
       japanese = japanese.replace(reg, japaneseNumerics[key].toString())
