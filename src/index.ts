@@ -65,7 +65,7 @@ export function findKanjiNumbers(text: string) {
   const match = text.match(regex)
   if (match) {
     return match.filter((item) => {
-      if (item.length) {
+      if (item.length && '兆' !== item && '億' !== item && '万' !== item) {
         return true
       } else {
         return false

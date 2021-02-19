@@ -45,4 +45,10 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual([ '八六三' ], findKanjiNumbers('今日のランチは八六三円でした。'))
     assert.deepEqual([ '三千' ], findKanjiNumbers('今月のお小遣いは三千円です。'))
   })
+
+
+  it('should not find Japanese Kanji numbers.', () => {
+    assert.deepEqual(0, findKanjiNumbers('栗沢町万字寿町').length)
+    assert.deepEqual(0, findKanjiNumbers('私は億ションに住んでいます').length)
+  })
 });
