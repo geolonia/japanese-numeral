@@ -73,4 +73,8 @@ describe('Tests for japaneseNumeral.', () => {
   it('`1千2百億8百21` should be converted to `120000000821`', () => {
     assert.deepEqual(kanji2number('1千2百35億8百21'), 123500000821)
   })
+
+  it('`１２３` should be converted to `123`', () => {
+    assert.deepEqual(kanji2number('１２３'), 123)
+  })
 });

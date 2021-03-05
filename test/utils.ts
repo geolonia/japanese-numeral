@@ -12,5 +12,6 @@ describe('Tests for utils.', () => {
   it('`kan2n()` should returns value as expected.', () => {
     assert.deepEqual(kan2n('三千'), 3000)
     assert.deepEqual(kan2n('22'), 22)
+    assert.deepEqual(kan2n('１２３'), 123)
   })
 });
