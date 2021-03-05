@@ -46,9 +46,31 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual([ '三千' ], findKanjiNumbers('今月のお小遣いは三千円です。'))
   })
 
-
   it('should not find Japanese Kanji numbers.', () => {
     assert.deepEqual(0, findKanjiNumbers('栗沢町万字寿町').length)
     assert.deepEqual(0, findKanjiNumbers('私は億ションに住んでいます').length)
+  })
+
+  it('should find mixed Japanese Kanji numbers.', () => {
+    assert.deepEqual([ '２千20', '十一', '二十' ], findKanjiNumbers('今日は２千20年十一月二十日です。'))
+  })
+
+  it('should convert mixed Japanese Kanji numbers to numbers.', () => {
+    assert.deepEqual(kanji2number('100万'), 1000000)
+    assert.deepEqual(kanji2number('5百'), 500)
+    assert.deepEqual(kanji2number('7十'), 70)
+    assert.deepEqual(kanji2number('4千８百'), 4800)
+    assert.deepEqual(kanji2number('4千８百万'), 48000000)
+    assert.deepEqual(kanji2number('3億4千８百万'), 348000000)
+    assert.deepEqual(kanji2number('3億4千８百万6'), 348000006)
+    assert.deepEqual(kanji2number('2百億'), 20000000000)
+  })
+
+  it('`4千8百21` should be converted to `4821`', () => {
+    assert.deepEqual(kanji2number('4千8百21'), 4821)
+  })
+
+  it('`1千2百億8百21` should be converted to `120000000821`', () => {
+    assert.deepEqual(kanji2number('1千2百35億8百21'), 123500000821)
   })
 });
