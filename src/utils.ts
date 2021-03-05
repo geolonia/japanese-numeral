@@ -48,6 +48,10 @@ export function splitLargeNumber(japanese: string) {
  * @param japanese
  */
 export function kan2n(japanese: string) {
+  if (japanese.match(/^[0-9]+$/)) {
+    return Number(japanese)
+  }
+
   let kanji = japanese
   let number = 0
   for (const key in smallNumbers) {
@@ -56,7 +60,11 @@ export function kan2n(japanese: string) {
     if (match) {
       let n = 1
       if (match[1]) {
-        n = japaneseNumerics[match[1]]
+        if (match[1].match(/^[0-9]+$/)) {
+          n = Number(match[1])
+        } else {
+          n = japaneseNumerics[match[1]]
+        }
       }
 
       number = number + (n * smallNumbers[key])
@@ -66,7 +74,11 @@ export function kan2n(japanese: string) {
   }
 
   if (kanji) {
-    number = number + japaneseNumerics[kanji]
+    if (kanji.match(/^[0-9]+$/)) {
+      number = number + Number(kanji)
+    } else {
+      number = number + japaneseNumerics[kanji]
+    }
   }
 
   return number
