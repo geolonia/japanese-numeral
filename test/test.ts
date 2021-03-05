@@ -44,6 +44,7 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual([ '八百六十三' ], findKanjiNumbers('今日のランチは八百六十三円でした。'))
     assert.deepEqual([ '八六三' ], findKanjiNumbers('今日のランチは八六三円でした。'))
     assert.deepEqual([ '三千' ], findKanjiNumbers('今月のお小遣いは三千円です。'))
+    assert.deepEqual([ '五', '６２', '８' ], findKanjiNumbers('青森県五所川原市金木町喜良市千苅６２−８'))
   })
 
   it('should not find Japanese Kanji numbers.', () => {
@@ -72,5 +73,9 @@ describe('Tests for japaneseNumeral.', () => {
 
   it('`1千2百億8百21` should be converted to `120000000821`', () => {
     assert.deepEqual(kanji2number('1千2百35億8百21'), 123500000821)
+  })
+
+  it('`１２３` should be converted to `123`', () => {
+    assert.deepEqual(kanji2number('１２３'), 123)
   })
 });

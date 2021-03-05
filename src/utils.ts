@@ -52,7 +52,7 @@ export function kan2n(japanese: string) {
     return Number(japanese)
   }
 
-  let kanji = japanese
+  let kanji = zen2han(japanese)
   let number = 0
   for (const key in smallNumbers) {
     const reg = new RegExp(`(.*)${key}`)
@@ -110,4 +110,15 @@ export function n2kan(num: number) {
   }
 
   return kanji
+}
+
+/**
+ * Converts double-width number to nuber as string.
+ *
+ * @param num
+ */
+export function zen2han(str: string) {
+  return str.replace(/[０-９]/g, (s) => {
+      return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+  });
 }
