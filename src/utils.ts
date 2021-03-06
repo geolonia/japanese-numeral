@@ -113,7 +113,7 @@ export function n2kan(num: number) {
 }
 
 /**
- * Converts double-width number to nuber as string.
+ * Converts double-width number to number as string.
  *
  * @param num
  */
