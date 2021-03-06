@@ -30,7 +30,7 @@ console.log(kanji2number('二〇二〇')) // 2020
 
 // 数字と漢数字が混ざった表記にも対応
 console.log(kanji2number('2億3千430万')) // 234300000
-console.log(kanji2number('２億３千４３０万')) // 234300000 （数字は全角でも可）
+console.log(kanji2number('２億３千４５６万７８９０')) // 234567890 （数字は全角でも可）
 ```
 
 ### number2kanji()
