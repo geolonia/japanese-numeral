@@ -57,6 +57,12 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual([ '２千20', '十一', '二十' ], findKanjiNumbers('今日は２千20年十一月二十日です。'))
   })
 
+  it('should find old Japanese Kanji numbers.', () => {
+    assert.deepEqual([ '壱', '弐' ], findKanjiNumbers('私が住んでいるのは壱番館の弐号室です。'))
+    assert.deepEqual([ '壱阡陌拾壱兆壱億壱萬壱阡', ], findKanjiNumbers('私は、壱阡陌拾壱兆壱億壱萬壱阡円持っています。'))
+    assert.deepEqual([ '壱仟佰拾壱兆壱億壱萬壱仟', ], findKanjiNumbers('私は、壱仟佰拾壱兆壱億壱萬壱仟円持っています。'))
+  })
+
   it('should convert mixed Japanese Kanji numbers to numbers.', () => {
     assert.deepEqual(kanji2number('100万'), 1000000)
     assert.deepEqual(kanji2number('5百'), 500)
