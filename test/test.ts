@@ -14,6 +14,8 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual(kanji2number('二千'), 2000)
     assert.deepEqual(kanji2number('壱万'), 10000)
     assert.deepEqual(kanji2number('一二三四'), 1234)
+    assert.deepEqual(kanji2number('壱阡陌拾壱兆壱阡陌拾壱億壱阡陌拾壱萬壱阡陌拾壱'), 1111111111111111)
+    assert.deepEqual(kanji2number('壱仟佰拾壱兆壱仟佰拾壱億壱仟佰拾壱萬壱仟佰拾壱'), 1111111111111111)
   });
 
   it('Number should be converted to Japanese kanji', () => {
@@ -55,6 +57,12 @@ describe('Tests for japaneseNumeral.', () => {
 
   it('should find mixed Japanese Kanji numbers.', () => {
     assert.deepEqual([ '２千20', '十一', '二十' ], findKanjiNumbers('今日は２千20年十一月二十日です。'))
+  })
+
+  it('should find old Japanese Kanji numbers.', () => {
+    assert.deepEqual([ '壱', '弐' ], findKanjiNumbers('私が住んでいるのは壱番館の弐号室です。'))
+    assert.deepEqual([ '壱阡陌拾壱兆壱億壱萬', ], findKanjiNumbers('私は、壱阡陌拾壱兆壱億壱萬円持っています。'))
+    assert.deepEqual([ '壱仟佰拾壱兆壱億壱萬', ], findKanjiNumbers('私は、壱仟佰拾壱兆壱億壱萬円持っています。'))
   })
 
   it('should convert mixed Japanese Kanji numbers to numbers.', () => {
