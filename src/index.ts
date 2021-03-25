@@ -59,7 +59,7 @@ export function number2kanji(num: number) {
 }
 
 export function findKanjiNumbers(text: string) {
-  const basePattern = '([0-9０-９一二三四五六七八九壱壹弐貳貮参參肆伍陸漆捌玖]+(千|阡|仟))?([0-9０-９一二三四五六七八九壱壹弐貳貮参參肆伍陸漆捌玖]*(百|陌|佰))?([0-9０-９一二三四五六七八九壱壹弐貳貮参參肆伍陸漆捌玖]*(十|拾))?([0-9０-９〇一二三四五六七八九壱壹弐貳貮参參肆伍陸漆捌玖]+)?'
+  const basePattern = '([0-9０-９一二三四五六七八九壱壹弐貳貮参參肆伍陸漆捌玖]*(千|阡|仟))?([0-9０-９一二三四五六七八九壱壹弐貳貮参參肆伍陸漆捌玖]*(百|陌|佰))?([0-9０-９一二三四五六七八九壱壹弐貳貮参參肆伍陸漆捌玖]*(十|拾))?([0-9０-９〇一二三四五六七八九壱壹弐貳貮参參肆伍陸漆捌玖]+)?'
   const pattern = `(${basePattern}兆)?(${basePattern}億)?(${basePattern}(万|萬))?${basePattern}`
   const regex = new RegExp(pattern, 'g')
   const match = text.match(regex)
