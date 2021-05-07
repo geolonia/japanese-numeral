@@ -46,8 +46,9 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual([ '八百六十三' ], findKanjiNumbers('今日のランチは八百六十三円でした。'))
     assert.deepEqual([ '八六三' ], findKanjiNumbers('今日のランチは八六三円でした。'))
     assert.deepEqual([ '三千' ], findKanjiNumbers('今月のお小遣いは三千円です。'))
-    assert.deepEqual([ '五', '千', '６２', '８' ], findKanjiNumbers('青森県五所川原市金木町喜良市千苅６２−８'))
+    assert.deepEqual([ '五', '千' ], findKanjiNumbers('青森県五所川原市金木町喜良市千苅６２−８'))
     assert.deepEqual([ '1億2000万' ], findKanjiNumbers('わたしは1億2000万円もっています。'))
+    assert.deepEqual([ '六' ], findKanjiNumbers('香川県仲多度郡まんのう町勝浦字家六２０９４番地１'))
   })
 
   it('should not find Japanese Kanji numbers.', () => {
@@ -96,3 +97,12 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual(kanji2number('１２３'), 123)
   })
 });
+
+// https://github.com/geolonia/normalize-japanese-addresses/issues/94
+it('should find Japanese Kanji number `六` in `香川県仲多度郡まんのう町勝浦字家六２０９４番地１`.', () => {
+  assert.deepEqual([ '六' ], findKanjiNumbers('香川県仲多度郡まんのう町勝浦字家六２０９４番地１'))
+})
+
+it('should find Japanese Kanji number in `今日は２千20年十一月二十日です。`.', () => {
+  assert.deepEqual([ '２千20', '十一', '二十' ], findKanjiNumbers('今日は２千20年十一月二十日です。'))
+})
