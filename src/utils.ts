@@ -1,17 +1,32 @@
-import oldJapaneseNumerics from './oldJapaneseNumerics'
+import { oldJapaneseNumericsRegex } from './oldJapaneseNumerics'
 import japaneseNumerics from './japaneseNumerics'
 
 type NumHash = {
   [key: string]: number;
 }
 
+type NumberRegex = {
+  regex: RegExp,
+  number: number,
+  key: string,
+}[]
+
 export const largeNumbers: NumHash = { '兆': 1000000000000, '億': 100000000, '万': 10000 }
 export const smallNumbers: NumHash = { '千': 1000, '百': 100, '十': 10 }
+const largeNumberRegexes: NumberRegex = Object.keys(largeNumbers).map(key => ({
+  regex: new RegExp(`(.+)${key}`),
+  number: largeNumbers[key],
+  key,
+}))
+const smallNumberRegexes: NumberRegex = Object.keys(smallNumbers).map(key => ({
+  regex: new RegExp(`(.*)${key}`),
+  number: smallNumbers[key],
+  key,
+}))
 
 export function normalize(japanese: string) {
-  for (const key in oldJapaneseNumerics) {
-    const reg = new RegExp(key, 'g')
-    japanese = japanese.replace(reg, oldJapaneseNumerics[key])
+  for (const { regex, replacement } of oldJapaneseNumericsRegex) {
+    japanese = japanese.replace(regex, replacement)
   }
   return japanese
 }
@@ -21,10 +36,9 @@ export function normalize(japanese: string) {
  */
 export function splitLargeNumber(japanese: string) {
   let kanji = japanese
-  const numbers:NumHash = {}
-  for (const key in largeNumbers) {
-    const reg = new RegExp(`(.+)${key}`)
-    const match = kanji.match(reg)
+  const numbers: NumHash = {}
+  for (const { regex, key } of largeNumberRegexes) {
+    const match = kanji.match(regex)
     if (match) {
       numbers[key] = kan2n(match[1])
       kanji = kanji.replace(match[0], '')
@@ -42,39 +56,40 @@ export function splitLargeNumber(japanese: string) {
   return numbers
 }
 
+const KAN2N_NUMBER_MATCHER = /^[0-9]+$/
+
 /**
  * 千単位以下の漢数字を数字に変換する（例: 三千 => 3000）
  *
  * @param japanese
  */
 export function kan2n(japanese: string) {
-  if (japanese.match(/^[0-9]+$/)) {
+  if (japanese.match(KAN2N_NUMBER_MATCHER)) {
     return Number(japanese)
   }
 
   let kanji = zen2han(japanese)
   let number = 0
-  for (const key in smallNumbers) {
-    const reg = new RegExp(`(.*)${key}`)
-    const match = kanji.match(reg)
+  for (const { regex, number: matchedNumber } of smallNumberRegexes) {
+    const match = kanji.match(regex)
     if (match) {
       let n = 1
       if (match[1]) {
-        if (match[1].match(/^[0-9]+$/)) {
+        if (match[1].match(KAN2N_NUMBER_MATCHER)) {
           n = Number(match[1])
         } else {
           n = japaneseNumerics[match[1]]
         }
       }
 
-      number = number + (n * smallNumbers[key])
+      number = number + (n * matchedNumber)
 
       kanji = kanji.replace(match[0], '')
     }
   }
 
   if (kanji) {
-    if (kanji.match(/^[0-9]+$/)) {
+    if (kanji.match(KAN2N_NUMBER_MATCHER)) {
       number = number + Number(kanji)
     } else {
       number = number + japaneseNumerics[kanji]
