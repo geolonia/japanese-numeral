@@ -108,3 +108,9 @@ it('should find Japanese Kanji number `六` in `香川県仲多度郡まんの�
 it('should find Japanese Kanji number in `今日は２千20年十一月二十日です。`.', () => {
   assert.deepEqual([ '２千20', '十一', '二十' ], findKanjiNumbers('今日は２千20年十一月二十日です。'))
 })
+
+it('synonyms', () => {
+  assert.deepEqual(kanji2number('一二三'), 123)
+  assert.deepEqual(kanji2number('百二三'), 123)
+  assert.deepEqual(kanji2number('百二十三'), 123)
+})
