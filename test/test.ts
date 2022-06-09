@@ -15,6 +15,9 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual(kanji2number('壱万'), 10000)
     assert.deepEqual(kanji2number('弍万'), 20000)
     assert.deepEqual(kanji2number('一二三四'), 1234)
+    assert.deepEqual(kanji2number('千二三四'), 1234)
+    assert.deepEqual(kanji2number('千二百三四'), 1234)
+    assert.deepEqual(kanji2number('千二百三十四'), 1234)
     assert.deepEqual(kanji2number('壱阡陌拾壱兆壱阡陌拾壱億壱阡陌拾壱萬壱阡陌拾壱'), 1111111111111111)
     assert.deepEqual(kanji2number('壱仟佰拾壱兆壱仟佰拾壱億壱仟佰拾壱萬壱仟佰拾壱'), 1111111111111111)
   });
@@ -107,10 +110,4 @@ it('should find Japanese Kanji number `六` in `香川県仲多度郡まんの�
 
 it('should find Japanese Kanji number in `今日は２千20年十一月二十日です。`.', () => {
   assert.deepEqual([ '２千20', '十一', '二十' ], findKanjiNumbers('今日は２千20年十一月二十日です。'))
-})
-
-it('synonyms', () => {
-  assert.deepEqual(kanji2number('一二三'), 123)
-  assert.deepEqual(kanji2number('百二三'), 123)
-  assert.deepEqual(kanji2number('百二十三'), 123)
 })
