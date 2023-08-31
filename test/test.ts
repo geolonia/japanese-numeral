@@ -9,7 +9,6 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual(kanji2number('百十一'), 111)
     assert.deepEqual(kanji2number('三億八'), 300000008)
     assert.deepEqual(kanji2number('三百八'), 308)
-    assert.deepEqual(kanji2number('三五十'), 350)
     assert.deepEqual(kanji2number('三五〇'), 350)
     assert.deepEqual(kanji2number('三〇八'), 308)
     assert.deepEqual(kanji2number('二〇二〇'), 2020)
@@ -43,6 +42,7 @@ describe('Tests for japaneseNumeral.', () => {
 
     // @ts-ignore
     assert.throws(() => kanji2number('あ'), TypeError)
+    assert.throws(() => kanji2number('三五十'), TypeError)
   });
 
   it('should find Japanese Kanji numbers.', () => {
