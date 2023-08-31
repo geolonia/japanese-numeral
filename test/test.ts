@@ -37,10 +37,7 @@ describe('Tests for japaneseNumeral.', () => {
     // @ts-ignore
     assert.throws(() => number2kanji('hello'), TypeError)
 
-    // @ts-ignore
     assert.throws(() => kanji2number('三あ八'), TypeError)
-
-    // @ts-ignore
     assert.throws(() => kanji2number('あ'), TypeError)
     assert.throws(() => kanji2number('三五十'), TypeError)
   });
