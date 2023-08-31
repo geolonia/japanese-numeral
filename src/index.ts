@@ -5,7 +5,7 @@ export function kanji2number(japanese: string) {
   japanese = normalize(japanese)
 
   // 末尾の十は〇と同等なので一旦それに正規化
-  japanese = japanese.replace(/十$/, '〇');
+  japanese = japanese.replace(/(.+)(十)$/, '$1〇');
 
   if (japanese.match('〇') || japanese.match(/^[〇一二三四五六七八九]+$/)) {
     for (const key in japaneseNumerics) {
