@@ -12,6 +12,9 @@
     "type": "git",
     "url": "git+https://github.com/geolonia/japanese-numeral.git"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "author": "Geolonia Inc.",
   "license": "MIT",
   "devDependencies": {
