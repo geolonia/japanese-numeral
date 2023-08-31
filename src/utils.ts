@@ -113,6 +113,7 @@ export function n2kan(num: number) {
   if (number) {
     kanji = `${kanji}${kanjiNumbers[number]}`
   }
+
   return kanji
 }
 
