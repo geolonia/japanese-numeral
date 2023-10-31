@@ -55,7 +55,7 @@ export function number2kanji(num: number) {
     kanji = `${kanji}${n2kan(number)}`
   }
 
-  return kanji
+  return kanji || '〇'
 }
 
 export function findKanjiNumbers(text: string) {
