@@ -105,6 +105,93 @@ describe('Tests for japaneseNumeral.', () => {
   it('`１２３` should be converted to `123`', () => {
     assert.deepEqual(kanji2number('１２３'), 123)
   })
+
+  // Issue #20: decimal Arabic-kanji numerals (e.g. 8.5万円, 25.24億円)
+  describe('findKanjiNumbers should recognize decimal Arabic-kanji numerals as single tokens', () => {
+    it('decimal + 万: common rent price like 8.5万円', () => {
+      assert.deepEqual(findKanjiNumbers('家賃は8.5万円です。'), ['8.5万'])
+    })
+
+    it('decimal + 億: property price like 25.24億円', () => {
+      assert.deepEqual(findKanjiNumbers('売上は25.24億円でした。'), ['25.24億'])
+    })
+
+    it('should handle precision in numbers like 1.20兆円', () => {
+      assert.deepEqual(findKanjiNumbers('予算は1.20兆円です。'), ['1.20兆'])
+    })
+
+    it('should not extract standalone decimals without kanji units', () => {
+      assert.deepEqual(findKanjiNumbers('値段は8.5です'), [])
+    })
+
+    it('full-width decimal: ８．５万 should be found as a single token', () => {
+      assert.deepEqual(findKanjiNumbers('家賃は８．５万円です。'), ['８．５万'])
+    })
+
+    it('should extract decimal rent and fee amounts written with small units', () => {
+      assert.deepEqual(findKanjiNumbers('家賃は8.5千円です。'), ['8.5千'])
+      assert.deepEqual(findKanjiNumbers('手数料は8.5百円です。'), ['8.5百'])
+      assert.deepEqual(findKanjiNumbers('割引は8.5十円です。'), ['8.5十'])
+    })
+
+    it('should still find kanji numerals in text like article numbers and mixed labels', () => {
+      assert.deepEqual(findKanjiNumbers('第2二十条'), ['二十'])
+      assert.deepEqual(findKanjiNumbers('3三'), ['三'])
+    })
+
+    it('should stop before broken decimal-large-unit strings from OCR or scraped text', () => {
+      assert.deepEqual(findKanjiNumbers('1千2.3億'), ['1千2'])
+      assert.deepEqual(findKanjiNumbers('1百2.3万'), ['1百2'])
+    })
+  })
+
+  describe('kanji2number should convert decimal Arabic-kanji numerals', () => {
+    it('decimal + 千/百/十: 8.5千 = 8,500, 8.5百 = 850, 8.5十 = 85', () => {
+      assert.deepEqual(kanji2number('8.5千'), 8500)
+      assert.deepEqual(kanji2number('8.5百'), 850)
+      assert.deepEqual(kanji2number('8.5十'), 85)
+    })
+
+    it('decimal + 万: 8.5万 = 85,000', () => {
+      assert.deepEqual(kanji2number('8.5万'), 85000)
+    })
+
+    it('decimal + 億: 25.24億 = 2,524,000,000', () => {
+      assert.deepEqual(kanji2number('25.24億'), 2524000000)
+    })
+
+    it('precision in numbers', () => {
+      assert.deepEqual(kanji2number('1.20兆'), 1200000000000)
+    })
+
+    it('should not suffer from floating-point drift: 0.29億 = 29,000,000', () => {
+      assert.deepEqual(kanji2number('0.29億'), 29000000)
+    })
+
+    it('full-width decimal: ８．５万 = 85,000', () => {
+      assert.deepEqual(kanji2number('８．５万'), 85000)
+    })
+
+    it('should support tiny but integral decimal coefficients like 0.0000000001兆', () => {
+      assert.deepEqual(kanji2number('0.0000000001兆'), 100)
+    })
+
+    it('should reject non-integral results like 0.00009万', () => {
+      assert.throws(() => kanji2number('0.00009万'), TypeError)
+    })
+
+    it('should reject high-precision non-integral results like 1.0000000001万', () => {
+      assert.throws(() => kanji2number('1.0000000001万'), TypeError)
+    })
+
+    it('should reject large-coefficient non-integral results like 10000000.00000001万', () => {
+      assert.throws(() => kanji2number('10000000.00000001万'), TypeError)
+    })
+
+    it('should still reject mixed decimal-small-unit hybrids like 1.2千3百', () => {
+      assert.throws(() => kanji2number('1.2千3百'), TypeError)
+    })
+  })
 });
 
 // https://github.com/geolonia/normalize-japanese-addresses/issues/94

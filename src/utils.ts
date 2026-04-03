@@ -5,8 +5,31 @@ type NumHash = {
   [key: string]: number;
 }
 
+type StringHash = {
+  [key: string]: string;
+}
+
+export type SplitLargeNumberParts = {
+  numbers: NumHash;
+  raw: StringHash;
+}
+
 export const largeNumbers: NumHash = { '兆': 1000000000000, '億': 100000000, '万': 10000 }
 export const smallNumbers: NumHash = { '千': 1000, '百': 100, '十': 10 }
+
+function parseDecimalValue(japanese: string) {
+  const normalized = zen2han(japanese)
+  const match = normalized.match(/^([0-9]+)\.([0-9]+)$/)
+
+  if (!match) {
+    return null
+  }
+
+  return {
+    digits: Number(`${match[1]}${match[2]}`),
+    scale: 10 ** match[2].length,
+  }
+}
 
 export function normalize(japanese: string) {
   for (const key in oldJapaneseNumerics) {
@@ -20,26 +43,38 @@ export function normalize(japanese: string) {
  * 漢数字を兆、億、万単位に分割する
  */
 export function splitLargeNumber(japanese: string) {
+  return splitLargeNumberParts(japanese).numbers
+}
+
+/**
+ * 漢数字を兆、億、万単位に分割し、各係数の生文字列も返す
+ */
+export function splitLargeNumberParts(japanese: string): SplitLargeNumberParts {
   let kanji = japanese
   const numbers:NumHash = {}
+  const raw:StringHash = {}
   for (const key in largeNumbers) {
     const reg = new RegExp(`(.+)${key}`)
     const match = kanji.match(reg)
     if (match) {
+      raw[key] = match[1]
       numbers[key] = kan2n(match[1])
       kanji = kanji.replace(match[0], '')
     } else {
+      raw[key] = ''
       numbers[key] = 0
     }
   }
 
   if (kanji) {
+    raw['千'] = kanji
     numbers['千'] = kan2n(kanji)
   } else {
+    raw['千'] = ''
     numbers['千'] = 0
   }
 
-  return numbers
+  return { numbers, raw }
 }
 
 /**
@@ -53,6 +88,27 @@ export function kan2n(japanese: string) {
   }
 
   let kanji = zen2han(japanese)
+
+  // Allow decimal coefficients (e.g. "8.5" from "8.5万") so that
+  // kan2n returns 8.5 and the caller can multiply by the unit value.
+  // Previously this fell through to the kanji-character loop, which
+  // has no mapping for "." and silently produced an incorrect result.
+  if (kanji.match(/^[0-9]+\.[0-9]+$/)) {
+    return Number(kanji)
+  }
+
+  const decimalUnitMatch = kanji.match(/^([0-9]+\.[0-9]+)(千|百|十)$/)
+  if (decimalUnitMatch) {
+    const decimal = parseDecimalValue(decimalUnitMatch[1])
+    const unit = smallNumbers[decimalUnitMatch[2]]
+
+    if (!decimal || unit % decimal.scale !== 0) {
+      return NaN
+    }
+
+    return decimal.digits * (unit / decimal.scale)
+  }
+
   let number = 0
   for (const key in smallNumbers) {
     const reg = new RegExp(`(.*)${key}`)
@@ -125,5 +181,5 @@ export function n2kan(num: number) {
 export function zen2han(str: string) {
   return str.replace(/[０-９]/g, (s) => {
       return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-  });
+  }).replace(/．/g, '.');
 }
