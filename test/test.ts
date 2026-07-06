@@ -69,6 +69,7 @@ describe('Tests for japaneseNumeral.', () => {
   })
 
   it('should find old Japanese Kanji numbers.', () => {
+    assert.deepEqual([ '零' ], findKanjiNumbers('口座の残高は零円です。'))
     assert.deepEqual([ '壱', '弐' ], findKanjiNumbers('私が住んでいるのは壱番館の弐号室です。'))
     assert.deepEqual([ '弍' ], findKanjiNumbers('私は、ハイツ弍号棟に住んでいます。'))
     assert.deepEqual([ '壱阡陌拾壱兆壱億壱萬', ], findKanjiNumbers('私は、壱阡陌拾壱兆壱億壱萬円持っています。'))
