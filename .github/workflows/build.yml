@@ -5,10 +5,10 @@ name: build
 
 on:
   push:
-    branches:
-      - "*"
-    tags:
-      - "*"
+    branches: [master]
+    tags: ['*']
+  pull_request:
+    branches: [master]
 
 jobs:
   test:
@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install
+      - run: npm ci
       - run: npm test
       - run: npm run build
 
@@ -42,6 +42,6 @@ jobs:
           registry-url: https://registry.npmjs.org/
           package-manager-cache: false
       - run: npm install -g npm@latest
-      - run: npm install
+      - run: npm ci
       - run: npm run build
       - run: npm publish --access=public
