@@ -1,5 +1,6 @@
 import { kanji2number, number2kanji, findKanjiNumbers } from '../src'
-import { assert } from 'chai'
+import { describe, it } from 'node:test'
+import assert from 'node:assert/strict'
 
 describe('Tests for japaneseNumeral.', () => {
   it('Japanese numeric should be parsed as numbers.', () => {
@@ -60,8 +61,8 @@ describe('Tests for japaneseNumeral.', () => {
   })
 
   it('should not find Japanese Kanji numbers.', () => {
-    assert.deepEqual(0, findKanjiNumbers('栗沢町万字寿町').length)
-    assert.deepEqual(0, findKanjiNumbers('私は億ションに住んでいます').length)
+    assert.deepEqual(findKanjiNumbers('栗沢町万字寿町').length, 0)
+    assert.deepEqual(findKanjiNumbers('私は億ションに住んでいます').length, 0)
   })
 
   it('should find mixed Japanese Kanji numbers.', () => {

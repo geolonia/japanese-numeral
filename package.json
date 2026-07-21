@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "mocha -r ts-node/register test/*.ts",
-    "test:watch": "npm test -- --watch --watch-files src/**/*.ts --watch-files test/**/*.ts"
+    "test": "tsx --test test/*.ts",
+    "test:watch": "tsx --test --watch test/*.ts"
   },
   "repository": {
     "type": "git",
@@ -18,11 +18,8 @@
   "author": "Geolonia Inc.",
   "license": "MIT",
   "devDependencies": {
-    "@types/chai": "^4.3.20",
-    "@types/mocha": "^10.0.10",
-    "chai": "^4.5.0",
-    "mocha": "^11.7.6",
-    "ts-node": "^10.9.2",
+    "@types/node": "^20.19.20",
+    "tsx": "^4.23.1",
     "typescript": "^5.9.3"
   }
 }
