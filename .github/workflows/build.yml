@@ -14,11 +14,11 @@ jobs:
   test:
     strategy:
       matrix:
-        node-version: [14, 16, 18, 20]
+        node-version: [18, 20, 22, 24]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
@@ -33,11 +33,14 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org/
+          package-manager-cache: false
       - run: npm install -g npm@latest
       - run: npm install
       - run: npm run build
