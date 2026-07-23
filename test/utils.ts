@@ -1,5 +1,6 @@
 import { n2kan, kan2n } from '../src/utils'
-import { assert } from 'chai'
+import { describe, it } from 'node:test'
+import assert from 'node:assert/strict'
 
 describe('Tests for utils.', () => {
   it('Small Japanese numeric should be parsed as numbers.', () => {
