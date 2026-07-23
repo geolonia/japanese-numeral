@@ -66,9 +66,10 @@ jobs:
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
           PRERELEASE=""
-          if echo "$TAG" | grep -q '\-pre\.'; then
-            PRERELEASE="--prerelease"
-          fi
+          # Any semver prerelease (contains a hyphen: -rc.1, -alpha.0, -beta.2, -pre.1, ...).
+          case "$TAG" in
+            *-*) PRERELEASE="--prerelease" ;;
+          esac
           gh release delete "$TAG" --yes 2>/dev/null || true
           gh release create "$TAG" \
             --title "$TAG" \
@@ -76,10 +77,12 @@ jobs:
             $PRERELEASE
 
       # npm publish last — once published, the version is immutable.
+      # A prerelease tag (any hyphen) goes to the `next` dist-tag so it never
+      # becomes the default `npm install` target and stays out of `^`/`~` ranges.
       - name: Publish (latest)
-        if: "!contains(github.ref, '-pre.')"
+        if: "!contains(github.ref, '-')"
         run: npm publish --access=public
 
       - name: Publish (next)
-        if: "contains(github.ref, '-pre.')"
+        if: "contains(github.ref, '-')"
         run: npm publish --access=public --tag=next
