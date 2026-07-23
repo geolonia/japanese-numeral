@@ -1,12 +1,13 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+# This workflow runs tests on every push/PR and, when a version bump lands on
+# master, automatically publishes to npm and creates the matching git tag +
+# GitHub Release. No manual tag push is required: bump the version in a PR,
+# get it reviewed and merged, and CI does the rest.
 
 name: build
 
 on:
   push:
     branches: [master]
-    tags: ['v*.*.*']
   pull_request:
     branches: [master]
 
@@ -25,13 +26,19 @@ jobs:
       - run: npm test
       - run: npm run build
 
-  publish:
+  # Release when package.json's version is new (i.e. a version-bump PR was
+  # merged to master). Regular commits keep the version unchanged, so the
+  # tag already exists and this job is a no-op.
+  release:
+    name: Release on version bump
     needs: test
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
-      contents: read
+      id-token: write # npm Trusted Publishing (OIDC) — no NPM_TOKEN needed
+      contents: write # create the git tag + GitHub Release
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -41,7 +48,61 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org/
           package-manager-cache: false
-      - run: npm install -g npm@latest
-      - run: npm ci
-      - run: npm run build
-      - run: npm publish --access=public
+
+      - name: Detect version and whether it needs releasing
+        id: check
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          # Semver prerelease (e.g. 1.1.0-pre.1) → publish under the "next" dist-tag.
+          case "$VERSION" in
+            *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *)   echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
+          esac
+          # A pre-existing tag means this version was already released → skip.
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/v${VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${VERSION} already exists — nothing to release."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "New version v${VERSION} detected — will release."
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install dependencies and build
+        if: steps.check.outputs.release == 'true'
+        run: |
+          npm install -g npm@latest
+          npm ci
+          npm run build
+
+      - name: Publish to npm
+        if: steps.check.outputs.release == 'true'
+        run: |
+          VERSION="${{ steps.check.outputs.version }}"
+          # Idempotency: if a previous run already published this version to npm
+          # (but failed before tagging), skip publish and just create the tag.
+          PUBLISHED=$(npm view "@geolonia/japanese-numeral@${VERSION}" version 2>/dev/null || true)
+          if [ "$PUBLISHED" = "$VERSION" ]; then
+            echo "@geolonia/japanese-numeral@${VERSION} is already on npm — skipping publish."
+          elif [ "${{ steps.check.outputs.prerelease }}" = "true" ]; then
+            npm publish --access=public --tag=next
+          else
+            npm publish --access=public
+          fi
+
+      - name: Create git tag and GitHub Release
+        if: steps.check.outputs.release == 'true'
+        run: |
+          TAG="v${{ steps.check.outputs.version }}"
+          PRERELEASE=""
+          if [ "${{ steps.check.outputs.prerelease }}" = "true" ]; then
+            PRERELEASE="--prerelease"
+          fi
+          # Creates both the tag (at this commit) and the Release in one call.
+          # The tag ruleset forbids deletion/mutation, so this is the final,
+          # committing step — everything before it is safe to retry.
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --generate-notes \
+            $PRERELEASE
