@@ -38,7 +38,9 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          # Node 24.x bundles npm >= 11.5.1, which npm Trusted Publishing (OIDC)
+          # requires — so no separate `npm install -g npm@latest` step is needed.
+          node-version: 24
           registry-url: https://registry.npmjs.org/
           package-manager-cache: false
 
@@ -53,7 +55,6 @@ jobs:
             exit 1
           fi
 
-      - run: npm install -g npm@latest
       - run: npm ci
       - run: npm run build
 
