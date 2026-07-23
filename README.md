@@ -1,6 +1,6 @@
 # @geolonia/japanese-numeral
 
-[![https://github.com/geolonia/wwwdiff/japanese-numeral](https://github.com/geolonia/japanese-numeral/workflows/test/badge.svg)](https://github.com/geolonia/japanese-numeral/actions?query=workflow%3Atest)
+[![build](https://github.com/geolonia/japanese-numeral/actions/workflows/build.yml/badge.svg)](https://github.com/geolonia/japanese-numeral/actions/workflows/build.yml)
 [![npm version](https://badge.fury.io/js/%40geolonia%2Fjapanese-numeral.svg)](https://badge.fury.io/js/%40geolonia%2Fjapanese-numeral)
 
 Converts Japanese Kanji numeral <=> number.
