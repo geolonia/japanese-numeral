@@ -30,8 +30,10 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
-      contents: read
+      id-token: write # npm Trusted Publishing (OIDC)
+      contents: write # create the GitHub Release
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -44,4 +46,28 @@ jobs:
       - run: npm install -g npm@latest
       - run: npm ci
       - run: npm run build
-      - run: npm publish --access=public
+
+      # GitHub Release first — idempotent and safe to retry.
+      # `gh release delete` without --cleanup-tag removes only the Release
+      # object, leaving the git tag intact (compatible with the tag ruleset).
+      - name: Create GitHub Release
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          PRERELEASE=""
+          if echo "$TAG" | grep -q '\-pre\.'; then
+            PRERELEASE="--prerelease"
+          fi
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --generate-notes \
+            $PRERELEASE
+
+      # npm publish last — once published, the version is immutable.
+      - name: Publish (latest)
+        if: "!contains(github.ref, '-pre.')"
+        run: npm publish --access=public
+
+      - name: Publish (next)
+        if: "contains(github.ref, '-pre.')"
+        run: npm publish --access=public --tag=next
