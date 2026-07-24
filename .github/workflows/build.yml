@@ -30,18 +30,64 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
-      contents: read
+      id-token: write # npm Trusted Publishing (OIDC)
+      contents: write # create the GitHub Release
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          # Node 24.x bundles npm >= 11.5.1, which npm Trusted Publishing (OIDC)
+          # requires — so no separate `npm install -g npm@latest` step is needed.
+          node-version: 24
           registry-url: https://registry.npmjs.org/
           package-manager-cache: false
-      - run: npm install -g npm@latest
+
+      # Guard: the pushed tag must equal package.json's version, so a mistaken
+      # tag (e.g. bumping the version was forgotten) fails before publishing.
+      - name: Verify tag matches package.json version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          PKG="v$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::Tag $TAG does not match package.json version $PKG"
+            exit 1
+          fi
+
       - run: npm ci
       - run: npm run build
-      - run: npm publish --access=public
+
+      # GitHub Release first — idempotent and safe to retry.
+      # `gh release delete` without --cleanup-tag removes only the Release
+      # object, leaving the git tag intact (compatible with the tag ruleset).
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          PRERELEASE=""
+          # Any semver prerelease (contains a hyphen: -rc.1, -alpha.0, -beta.2, -pre.1, ...).
+          case "$TAG" in
+            *-*) PRERELEASE="--prerelease" ;;
+          esac
+          # Delete a pre-existing Release only if present, so real errors
+          # (permissions, rate limits) surface instead of being swallowed.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release delete "$TAG" --yes
+          fi
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --generate-notes \
+            $PRERELEASE
+
+      # npm publish last — once published, the version is immutable.
+      # A prerelease tag (any hyphen) goes to the `next` dist-tag so it never
+      # becomes the default `npm install` target and stays out of `^`/`~` ranges.
+      - name: Publish (latest)
+        if: "!contains(github.ref, '-')"
+        run: npm publish --access=public
+
+      - name: Publish (next)
+        if: "contains(github.ref, '-')"
+        run: npm publish --access=public --tag=next
