@@ -1,6 +1,3 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
-
 name: build
 
 on:
@@ -32,10 +29,16 @@ jobs:
     permissions:
       id-token: write # npm Trusted Publishing (OIDC)
       contents: write # create the GitHub Release
+    # Serialize per tag: the Release check below is check-then-act.
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          # Release notes need the full tag list.
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           # Node 24.x bundles npm >= 11.5.1, which npm Trusted Publishing (OIDC)
@@ -46,7 +49,8 @@ jobs:
 
       # Guard: the pushed tag must equal package.json's version, so a mistaken
       # tag (e.g. bumping the version was forgotten) fails before publishing.
-      - name: Verify tag matches package.json version
+      - name: Verify tag and resolve release metadata
+        id: meta
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
           PKG="v$(node -p "require('./package.json').version")"
@@ -54,40 +58,74 @@ jobs:
             echo "::error::Tag $TAG does not match package.json version $PKG"
             exit 1
           fi
+          case "$TAG" in *-*) PRERELEASE=1 ;; *) PRERELEASE=0 ;; esac
+          {
+            echo "tag=$TAG"
+            echo "prerelease=$PRERELEASE"
+            echo "package=$(node -p "require('./package.json').name")"
+          } >> "$GITHUB_OUTPUT"
 
       - run: npm ci
       - run: npm run build
 
-      # GitHub Release first — idempotent and safe to retry.
-      # `gh release delete` without --cleanup-tag removes only the Release
-      # object, leaving the git tag intact (compatible with the tag ruleset).
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          IS_PRERELEASE: ${{ steps.meta.outputs.prerelease }}
+          PKG_NAME: ${{ steps.meta.outputs.package }}
         run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          PRERELEASE=""
-          # Any semver prerelease (contains a hyphen: -rc.1, -alpha.0, -beta.2, -pre.1, ...).
-          case "$TAG" in
-            *-*) PRERELEASE="--prerelease" ;;
-          esac
-          # Delete a pre-existing Release only if present, so real errors
-          # (permissions, rate limits) surface instead of being swallowed.
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release delete "$TAG" --yes
+            # Never recreate: a re-run must not discard hand-edited notes.
+            echo "::notice::Release $TAG already exists, leaving its notes as they are."
+          else
+            # A shallow checkout has only the pushed tag, leaving no base below.
+            if [ "$(git rev-parse --is-shallow-repository)" != false ]; then
+              echo "::error::Shallow checkout; 'fetch-depth: 0' is required."
+              exit 1
+            fi
+
+            # GitHub finds no base for a prerelease tag and falls back to all
+            # history. Semver-sort TAG in; the entry before it is the base.
+            BASE=$(
+              { git tag --list 'v*.*.*' | grep -v -e '-'; echo "$TAG"; } \
+                | sort -u -V \
+                | awk -v tag="$TAG" '$0 == tag { print prev; exit } { prev = $0 }'
+            )
+            ARGS=("$TAG" --title "$TAG" --generate-notes)
+            if [ -n "$BASE" ]; then
+              echo "Generating notes for $TAG starting from $BASE."
+              ARGS+=(--notes-start-tag "$BASE")
+            else
+              echo "::warning::No previous stable tag; notes will cover the full history."
+            fi
+
+            # gh prepends --notes to the generated body.
+            if [ "$IS_PRERELEASE" = 1 ]; then
+              NOTE=$'> [!NOTE]\n> This is a **pre-release**, published to npm under the `next` dist-tag:\n'
+              NOTE+="> \`npm install ${PKG_NAME}@next\`"$'\n'
+              ARGS+=(--prerelease --notes "$NOTE")
+            fi
+
+            gh release create "${ARGS[@]}"
           fi
-          gh release create "$TAG" \
-            --title "$TAG" \
-            --generate-notes \
-            $PRERELEASE
+
+          # Runs even if the Release existed, repairing a partial run. legacy
+          # picks the highest semver; gh's --latest is boolean-only.
+          if [ "$IS_PRERELEASE" = 0 ]; then
+            RELEASE_ID=$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}" --jq '.id')
+            gh api --method PATCH \
+              "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}" \
+              -f make_latest=legacy >/dev/null
+          fi
 
       # npm publish last — once published, the version is immutable.
       # A prerelease tag (any hyphen) goes to the `next` dist-tag so it never
       # becomes the default `npm install` target and stays out of `^`/`~` ranges.
       - name: Publish (latest)
-        if: "!contains(github.ref, '-')"
+        if: steps.meta.outputs.prerelease == '0'
         run: npm publish --access=public
 
       - name: Publish (next)
-        if: "contains(github.ref, '-')"
+        if: steps.meta.outputs.prerelease == '1'
         run: npm publish --access=public --tag=next
