@@ -58,7 +58,8 @@ jobs:
             echo "::error::Tag $TAG does not match package.json version $PKG"
             exit 1
           fi
-          case "$TAG" in *-*) PRERELEASE=1 ;; *) PRERELEASE=0 ;; esac
+          # ${TAG%%+*} drops SemVer build metadata, whose hyphens are not prerelease.
+          case "${TAG%%+*}" in *-*) PRERELEASE=1 ;; *) PRERELEASE=0 ;; esac
           {
             echo "tag=$TAG"
             echo "prerelease=$PRERELEASE"
