@@ -17,6 +17,9 @@ export function kanji2number(japanese: string) {
 
     // 万以上の数字を数値に変換
     for (const key in largeNumbers) {
+      if (Number.isNaN(numbers[key])) {
+        throw new TypeError('The attribute of kanji2number() must be a Japanese numeral as integer.')
+      }
       if (numbers[key]) {
         const n = largeNumbers[key] * numbers[key]
         number = number + n

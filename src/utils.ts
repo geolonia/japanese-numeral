@@ -5,7 +5,7 @@ type NumHash = {
   [key: string]: number;
 }
 
-export const largeNumbers: NumHash = { '兆': 1000000000000, '億': 100000000, '万': 10000 }
+export const largeNumbers: NumHash = { '垓': 100000000000000000000, '京': 10000000000000000, '兆': 1000000000000, '億': 100000000, '万': 10000 }
 export const smallNumbers: NumHash = { '千': 1000, '百': 100, '十': 10 }
 
 export function normalize(japanese: string) {
@@ -17,7 +17,7 @@ export function normalize(japanese: string) {
 }
 
 /**
- * 漢数字を兆、億、万単位に分割する
+ * 漢数字を垓、京、兆、億、万単位に分割する
  */
 export function splitLargeNumber(japanese: string) {
   let kanji = japanese

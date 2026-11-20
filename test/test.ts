@@ -38,6 +38,17 @@ describe('Tests for japaneseNumeral.', () => {
     assert.deepEqual(number2kanji(100100000), '一億十万')
   });
 
+  it('Numbers of 10^16 and above should use 京 and 垓', () => {
+    assert.deepEqual(number2kanji(10000000000000000), '一京')
+    assert.deepEqual(number2kanji(20000000000000000), '二京')
+    assert.deepEqual(number2kanji(12000000000000000), '一京二千兆')
+    assert.deepEqual(number2kanji(100000000000000000000), '一垓')
+    assert.deepEqual(kanji2number('一京'), 10000000000000000)
+    assert.deepEqual(kanji2number('二京'), 20000000000000000)
+    assert.deepEqual(kanji2number('一京二千兆'), 12000000000000000)
+    assert.deepEqual(kanji2number('一垓'), 100000000000000000000)
+  });
+
   it('should returns the instance of TypeError', () => {
     // @ts-ignore
     assert.throws(() => number2kanji('hello'), TypeError)
@@ -45,6 +56,8 @@ describe('Tests for japaneseNumeral.', () => {
     assert.throws(() => kanji2number('三あ八'), TypeError)
     assert.throws(() => kanji2number('あ'), TypeError)
     assert.throws(() => kanji2number('三五十'), TypeError)
+    assert.throws(() => kanji2number('あ京'), TypeError)
+    assert.throws(() => kanji2number('あ万'), TypeError)
   });
 
   it('should find Japanese Kanji numbers.', () => {
