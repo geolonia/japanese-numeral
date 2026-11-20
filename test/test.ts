@@ -56,6 +56,8 @@ describe('Tests for japaneseNumeral.', () => {
     assert.throws(() => kanji2number('三あ八'), TypeError)
     assert.throws(() => kanji2number('あ'), TypeError)
     assert.throws(() => kanji2number('三五十'), TypeError)
+    assert.throws(() => kanji2number('あ京'), TypeError)
+    assert.throws(() => kanji2number('あ万'), TypeError)
   });
 
   it('should find Japanese Kanji numbers.', () => {
